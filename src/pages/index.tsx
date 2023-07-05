@@ -7,12 +7,15 @@ import { extendFields, getClient } from '@kodadot1/uniquery';
 import Header from '@/components/Header';
 import { MultipleItems, Item } from '@/helper/types';
 import Footer from '@/components/Footer';
+import { ownedItemsAnalysis, shortAddress } from '@/helper';
 
-const COLLECTION_ID = process.env.COLLECTION_ID as string;
+//const COLLECTION_ID: string = process.env.COLLECTION_ID as string;
+
+const COLLECTION_ID: string = '2106275273';
 
 export const getStaticProps = async () => {
   const client = getClient('bsx');
-  const query = client.itemListByCollectionId('2106275273', {
+  const query = client.itemListByCollectionId(COLLECTION_ID, {
     fields: extendFields(['meta', 'price']),
     orderBy: 'createdAt_ASC',
   });
@@ -43,6 +46,7 @@ export default function Home({
   }
 
   console.log(items);
+  console.log(ownedItemsAnalysis(items));
 
   return (
     <>
@@ -57,23 +61,19 @@ export default function Home({
         className="w-11/12 max-w-5xl mx-auto mt-28"
         aria-labelledby="information-heading"
       >
-        <h2 id="information-heading" className="sr-only">
-          Product List
+        <h2 className="text-3xl">
+          Collection Id:  {COLLECTION_ID}
         </h2>
-        <div className="grid grid-cols-1 gap-8 sm:!gap-x-10 sm:!grid-cols-2 lg:!grid-cols-3 lg:!gap-x-12 lg:!gap-y-10">
-          {items.map((item) => (
-            <ProductCard key={item.id} item={item} />
+        <div className='text-xl'>Items in collection: {items.length}</div>
+        <div className='text-xl'>Owners</div>
+        <div className='grid grid-cols-1'>
+          {ownedItemsAnalysis(items).map((item) => (
+            <div key={item.owner}>
+              {item.nbOfItems} - {shortAddress(item.owner)}
+            </div>
           ))}
         </div>
-      </div>
-      <div
-        className="w-11/12 max-w-5xl mx-auto mt-28"
-        aria-labelledby="information-heading"
-      >
-        <h2 id="information-heading" className="sr-only">
-          Product List
-        </h2>
-        <div className="grid grid-cols-1 gap-8 sm:!gap-x-10 sm:!grid-cols-2 lg:!grid-cols-3 lg:!gap-x-12 lg:!gap-y-10">
+        <div className="grid grid-cols-1">
           {items.map((item) => (
             <ProductCard key={item.id} item={item} />
           ))}

@@ -1,5 +1,6 @@
 import { formatBalance as format } from "@polkadot/util"
 import { $purify, AvailableProviders } from "@kodadot1/minipfs"
+import { Item } from '@/helper/types';
 
 export function shortAddress(
     address: string,
@@ -14,6 +15,30 @@ export function shortAddress(
     }
     return ''
 }
+
+export function ownedItemsAnalysis(items: Item[]): { owner: string, nbOfItems: number }[] {
+  let lookup: { [key: string]: number } = {};
+
+  // loop through items and count the number of items each owner has
+  items.forEach(item => {
+    if (!lookup[item.currentOwner]) {
+      lookup[item.currentOwner] = 0;
+    }
+
+    lookup[item.currentOwner]++;
+  });
+
+  // map lookup object to desired array format
+  let arr = Object.keys(lookup).map(owner => {
+    return { owner: owner, nbOfItems: lookup[owner] };
+  });
+
+  // sort arr from highest nbOfItems to lowest
+  arr.sort((a, b) => b.nbOfItems - a.nbOfItems);
+
+  return arr;
+}
+
 
 export function formatBalance(amount?: bigint | string) {
     const value = BigInt(amount || BigInt(0));
