@@ -8,35 +8,20 @@ import Header from '@/components/Header';
 import { MultipleItems, Item } from '@/helper/types';
 import Footer from '@/components/Footer';
 import { ownedItemsAnalysis, shortAddress, getFloorPrice, formatBalance } from '@/helper';
+import { getItemsListByCollection, getcollectionById } from '@/helper/asyncCalls';
 
 //const COLLECTION_ID: string = process.env.COLLECTION_ID as string;
 
-const COLLECTION_ID: string = '2106275273';
+const COLLECTION_ID: string = '1825819407';
 
 export const getStaticProps = async () => {
-  const client = getClient('bsx');
-  const query = client.itemListByCollectionId(COLLECTION_ID, {
-    fields: extendFields(['meta', 'price']),
-    orderBy: 'createdAt_ASC',
-  });
-  const res: MultipleItems = await client.fetch(query);
-  
-  let items: Item[] | undefined;
-
-  if (res) {
-    if ('data' in res) {
-      items = res.data ? res.data.items : undefined;
-    } else {
-      items = res.items;
-    }
-  }
+  let items: Item[] | undefined = await getItemsListByCollection(COLLECTION_ID, 'bsx');
+  //let test = 0;
 
   return {
     props: { items },
   };
 };
-
-
 
 export default function Home({
   items,
@@ -67,22 +52,22 @@ export default function Home({
           <h2 className="py-5 text-3xl">
             Collection Id:  {COLLECTION_ID}
           </h2>
-          <h2 className="py-5 text-3xl">
+          <h4 className="py-5 text-2xl">
             Chain: BSX
-          </h2>
+          </h4>
         </div>
-        <div className="py-2 text-2xl"> Name:  {items[0]?.name} </div>
+        <div className="py-2 text-2xl"> Name:  <span className='font-semibold'> {items[0]?.name}</span> </div>
         <div className="py-2 text-xl"> Description:  {items[0]?.meta?.description} </div>
-        <div className="py-2 text-2xl"> General Statistics: </div>
+        <div className="py-3 text-2xl font-semibold"> General Statistics </div>
         <div className='grid grid-cols-2'>
           <div className='py-2 text-xl'>Floor price: {getFloorPrice(items)} KSM</div>
-          <div className='py-2 text-xl'>Number of owners: {ownerAnalysis.length}</div>
-          <div className='py-2 text-xl'>Percentage of never sold items: {(neverSoldItems / collectionSize).toFixed(2)} %</div>
           <div className='py-2 text-xl'>Items in collection: {collectionSize}</div>
+          <div className='py-2 text-xl'>Percentage of never sold items: {(neverSoldItems / collectionSize).toFixed(2)} %</div>
           <div className='py-2 text-xl'>Items for sale: {sellableItems}</div>
+          <div className='py-2 text-xl'>Number of owners: {ownerAnalysis.length}</div>
         </div>
 
-        <div className='py-4 text-2xl font-bold '>Owner distribution:</div>
+        <div className='py-4 text-2xl font-semibold '>Owner distribution:</div>
         <div className='grid grid-cols-1'>
             <div className='flex items-center justify-between mt-3'>
               <p className='text-gray-800 font-bold text-lg'> 

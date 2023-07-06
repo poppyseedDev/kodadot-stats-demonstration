@@ -30,8 +30,6 @@ export function getFloorPrice(items: Item[]): number | undefined{
 }
 
 
-
-
 export function ownedItemsAnalysis(items: Item[]): { owner: string, nbOfItems: number }[] {
   let lookup: { [key: string]: number } = {};
 
