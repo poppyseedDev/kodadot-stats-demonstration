@@ -7,7 +7,7 @@ import { extendFields, getClient } from '@kodadot1/uniquery';
 import Header from '@/components/Header';
 import { MultipleItems, Item } from '@/helper/types';
 import Footer from '@/components/Footer';
-import { ownedItemsAnalysis, shortAddress } from '@/helper';
+import { ownedItemsAnalysis, shortAddress, getFloorPrice, formatBalance } from '@/helper';
 
 //const COLLECTION_ID: string = process.env.COLLECTION_ID as string;
 
@@ -38,6 +38,7 @@ export const getStaticProps = async () => {
   };
 };
 
+
 export default function Home({
   items,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
@@ -45,8 +46,14 @@ export default function Home({
     return <>Data unaccessible</>;
   }
 
+  let collectionSize = items.length;
+  let sellableItems = items.filter((item) => item.price > 0).length;
+  let neverSoldItems = items.filter((item) => item.issuer === item.currentOwner).length;
+
+  console.log('collectionSize', collectionSize);
+
+
   console.log(items);
-  console.log(ownedItemsAnalysis(items));
 
   return (
     <>
@@ -61,18 +68,44 @@ export default function Home({
         className="w-11/12 max-w-5xl mx-auto mt-28"
         aria-labelledby="information-heading"
       >
-        <h2 className="text-3xl">
+        <h2 className="py-5 text-3xl">
           Collection Id:  {COLLECTION_ID}
         </h2>
-        <div className='text-xl'>Items in collection: {items.length}</div>
-        <div className='text-xl'>Owners</div>
+        <div className="py-2 text-2xl"> Collection Name:  {items[0]?.name} </div>
+        <div className="py-2 text-2xl"> Collection Description:  {items[0]?.meta?.description} </div>
+        <div className='py-2 text-2xl'>Floor price: {getFloorPrice(items)} KSM</div>
+        <div className='py-2 text-2xl'>Items in collection: {collectionSize}</div>
+        <div className='py-2 text-2xl'>Items for sale: {sellableItems}</div>
+        
+
+        <div className='py-4 text-2xl font-bold '>Owner distribution:</div>
         <div className='grid grid-cols-1'>
+            <div className='flex items-center justify-between mt-3'>
+              <p className='text-gray-800 font-bold text-lg'> 
+                Address
+              </p>
+              <p className='text-gray-800 font-bold text-lg'> 
+                Percentage of Collection
+              </p>
+              <p className='text-gray-800 font-bold text-lg'> 
+                Nb. of Items Owned
+              </p>
+            </div>
           {ownedItemsAnalysis(items).map((item) => (
-            <div key={item.owner}>
-              {item.nbOfItems} - {shortAddress(item.owner)}
+            <div key={item.owner} className='flex items-center justify-between mt-3'>
+              <p className='text-gray-800 font-medium text-lg'> 
+                {shortAddress(item.owner)}
+              </p>
+              <p className='text-gray-800 font-medium text-lg'> 
+                {Math.round(item.nbOfItems/collectionSize*100)}%
+              </p>
+              <p className='text-gray-800 font-medium text-lg'> 
+                {item.nbOfItems} 
+              </p>
             </div>
           ))}
         </div>
+
         <div className="grid grid-cols-1">
           {items.map((item) => (
             <ProductCard key={item.id} item={item} />

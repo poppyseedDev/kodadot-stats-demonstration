@@ -16,6 +16,22 @@ export function shortAddress(
     return ''
 }
 
+export function getFloorPrice(items: Item[]): number | undefined{
+  let floorPrice: number | undefined = undefined;
+
+  items.forEach(item => {
+    let price = balanceToNumber(item.price);
+    if (price > 0 && (floorPrice === undefined || price < floorPrice)) {
+      floorPrice = price;
+    }
+  });
+
+  return floorPrice;
+}
+
+
+
+
 export function ownedItemsAnalysis(items: Item[]): { owner: string, nbOfItems: number }[] {
   let lookup: { [key: string]: number } = {};
 
@@ -37,6 +53,13 @@ export function ownedItemsAnalysis(items: Item[]): { owner: string, nbOfItems: n
   arr.sort((a, b) => b.nbOfItems - a.nbOfItems);
 
   return arr;
+}
+
+function balanceToNumber(amount?: bigint | string): number {
+  const value = BigInt(amount || BigInt(0));
+  const magic = format(value, { decimals: 12, forceUnit: '-', withZero: false, withUnit: false });
+
+  return Number(magic);
 }
 
 
