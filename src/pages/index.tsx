@@ -20,23 +20,22 @@ export const getStaticProps = async () => {
     orderBy: 'createdAt_ASC',
   });
   const res: MultipleItems = await client.fetch(query);
-
-  let itemam: { items: Item[] } | null;
+  
   let items: Item[] | undefined;
 
   if (res) {
     if ('data' in res) {
-      itemam = res.data;
+      items = res.data ? res.data.items : undefined;
     } else {
-      itemam = res;
+      items = res.items;
     }
-    items = itemam?.items;
   }
 
   return {
     props: { items },
   };
 };
+
 
 
 export default function Home({
@@ -49,11 +48,7 @@ export default function Home({
   let collectionSize = items.length;
   let sellableItems = items.filter((item) => item.price > 0).length;
   let neverSoldItems = items.filter((item) => item.issuer === item.currentOwner).length;
-
-  console.log('collectionSize', collectionSize);
-
-
-  console.log(items);
+  let ownerAnalysis = ownedItemsAnalysis(items);
 
   return (
     <>
@@ -68,15 +63,24 @@ export default function Home({
         className="w-11/12 max-w-5xl mx-auto mt-28"
         aria-labelledby="information-heading"
       >
-        <h2 className="py-5 text-3xl">
-          Collection Id:  {COLLECTION_ID}
-        </h2>
-        <div className="py-2 text-2xl"> Collection Name:  {items[0]?.name} </div>
-        <div className="py-2 text-2xl"> Collection Description:  {items[0]?.meta?.description} </div>
-        <div className='py-2 text-2xl'>Floor price: {getFloorPrice(items)} KSM</div>
-        <div className='py-2 text-2xl'>Items in collection: {collectionSize}</div>
-        <div className='py-2 text-2xl'>Items for sale: {sellableItems}</div>
-        
+        <div className="flex items-center justify-between">
+          <h2 className="py-5 text-3xl">
+            Collection Id:  {COLLECTION_ID}
+          </h2>
+          <h2 className="py-5 text-3xl">
+            Chain: BSX
+          </h2>
+        </div>
+        <div className="py-2 text-2xl"> Name:  {items[0]?.name} </div>
+        <div className="py-2 text-xl"> Description:  {items[0]?.meta?.description} </div>
+        <div className="py-2 text-2xl"> General Statistics: </div>
+        <div className='grid grid-cols-2'>
+          <div className='py-2 text-xl'>Floor price: {getFloorPrice(items)} KSM</div>
+          <div className='py-2 text-xl'>Number of owners: {ownerAnalysis.length}</div>
+          <div className='py-2 text-xl'>Percentage of never sold items: {(neverSoldItems / collectionSize).toFixed(2)} %</div>
+          <div className='py-2 text-xl'>Items in collection: {collectionSize}</div>
+          <div className='py-2 text-xl'>Items for sale: {sellableItems}</div>
+        </div>
 
         <div className='py-4 text-2xl font-bold '>Owner distribution:</div>
         <div className='grid grid-cols-1'>
@@ -103,12 +107,6 @@ export default function Home({
                 {item.nbOfItems} 
               </p>
             </div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1">
-          {items.map((item) => (
-            <ProductCard key={item.id} item={item} />
           ))}
         </div>
       </div>
