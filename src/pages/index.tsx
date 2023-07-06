@@ -4,6 +4,7 @@ import { InferGetStaticPropsType } from 'next';
 import Header from '@/components/Header';
 import { MultipleItems, Item, CollectionType } from '@/helper/types';
 import Footer from '@/components/Footer';
+import ChartComponent from '@/components/ChartDiagram';
 import { ownedItemsAnalysis, shortAddress, getFloorPrice, formatBalance } from '@/helper';
 import { getItemsListByCollection, getcollectionById } from '@/helper/asyncCalls';
 
@@ -67,6 +68,8 @@ export default function Home({
           <div className='py-2 text-xl'>Number of owners: {ownerAnalysis.length}</div>
         </div>
 
+        <ChartComponent ownerAnalysis={ownerAnalysis} />
+
         <div className='py-4 text-2xl font-semibold '>Owner distribution:</div>
         <div className='grid grid-cols-1'>
             <div className='flex items-center justify-between mt-3'>
@@ -80,7 +83,7 @@ export default function Home({
                 Nb. of Items Owned
               </p>
             </div>
-          {ownedItemsAnalysis(items).map((item) => (
+          {ownerAnalysis.map((item) => (
             <div key={item.owner} className='flex items-center justify-between mt-3'>
               <p className='text-gray-800 font-medium text-lg'> 
                 {shortAddress(item.owner)}
