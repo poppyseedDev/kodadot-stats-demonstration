@@ -1,5 +1,4 @@
-// Assuming we've imported QueryProps and BaseEvent types
-import { MultipleItems, Item } from './types'; // adjust import path accordingly
+import { MultipleItems, Item, CollectionType } from './types'; 
 import { extendFields, getClient } from '@kodadot1/uniquery';
 import { Prefix } from '@kodadot1/static'
 
@@ -33,13 +32,33 @@ export async function getcollectionById(collection_id: string, chain?: Prefix | 
     );
     const res: any = await client.fetch(query);
 
+    let items: CollectionType | undefined;
+    
+    if (res) {
+      if ('data' in res) {
+        items = res.data ? res.data : undefined;
+      } else {
+        items = res;
+      }
+    }
+
+  return items;
+}
+
+export async function getcollectionListByIssuer(collection_issuer: string, chain?: Prefix | undefined) {
+    const client = getClient(chain);
+    const query = client.collectionListByIssuer(
+        collection_issuer
+    );
+    const res: any = await client.fetch(query);
+
     let items: any | undefined;
       
     if (res) {
       if ('data' in res) {
-        items = res.data ? res.data.items : undefined;
+        items = res.data ? res.data : undefined;
       } else {
-        items = res.items;
+        items = res;
       }
     }
 

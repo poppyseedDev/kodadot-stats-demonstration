@@ -1,11 +1,8 @@
 import Head from 'next/head';
-import styles from '@/styles/Home.module.css';
 import { InferGetStaticPropsType } from 'next';
-import ProductCard from '@/components/ProductCard';
 
-import { extendFields, getClient } from '@kodadot1/uniquery';
 import Header from '@/components/Header';
-import { MultipleItems, Item } from '@/helper/types';
+import { MultipleItems, Item, CollectionType } from '@/helper/types';
 import Footer from '@/components/Footer';
 import { ownedItemsAnalysis, shortAddress, getFloorPrice, formatBalance } from '@/helper';
 import { getItemsListByCollection, getcollectionById } from '@/helper/asyncCalls';
@@ -16,17 +13,18 @@ const COLLECTION_ID: string = '1825819407';
 
 export const getStaticProps = async () => {
   let items: Item[] | undefined = await getItemsListByCollection(COLLECTION_ID, 'bsx');
-  //let test = 0;
+  let collection: CollectionType | undefined  = await getcollectionById(COLLECTION_ID, 'bsx');
 
   return {
-    props: { items },
+    props: { items, collection },
   };
 };
 
 export default function Home({
   items,
+  collection
 }: InferGetStaticPropsType<typeof getStaticProps>) {
-  if (typeof items == 'undefined') {
+  if (typeof items == 'undefined' || typeof collection == 'undefined' ) {
     return <>Data unaccessible</>;
   }
 
@@ -34,6 +32,8 @@ export default function Home({
   let sellableItems = items.filter((item) => item.price > 0).length;
   let neverSoldItems = items.filter((item) => item.issuer === item.currentOwner).length;
   let ownerAnalysis = ownedItemsAnalysis(items);
+
+  console.log(collection?.collection);
 
   return (
     <>
@@ -56,8 +56,8 @@ export default function Home({
             Chain: BSX
           </h4>
         </div>
-        <div className="py-2 text-2xl"> Name:  <span className='font-semibold'> {items[0]?.name}</span> </div>
-        <div className="py-2 text-xl"> Description:  {items[0]?.meta?.description} </div>
+        <div className="py-2 text-2xl"> Name:  <span className='font-semibold'> {collection?.collection.name}</span> </div>
+        <div className="py-2 text-xl"> Description:  {collection?.collection.meta?.description} </div>
         <div className="py-3 text-2xl font-semibold"> General Statistics </div>
         <div className='grid grid-cols-2'>
           <div className='py-2 text-xl'>Floor price: {getFloorPrice(items)} KSM</div>
